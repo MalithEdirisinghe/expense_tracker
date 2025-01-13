@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
-import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,39 +10,85 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
-  List<Map<String, dynamic>> expenses = [];
-  double totalExpensesForRange = 0.0;
-
-  double get totalExpenses => expenses.fold(0.0, (sum, item) => sum + (item['amount'] as double));
+  List<Map<String, dynamic>> groupedExpenses = [];
+  double totalExpenses = 0.0;
+  double totalExpensesThisMonth = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _fetchExpenses();
-    _fetchTotalExpensesForRange();
+    _fetchGroupedExpenses();
+    _fetchTotalExpenses();
+    _fetchTotalExpensesThisMonth();
   }
 
-  Future<void> _fetchExpenses() async {
-    final data = await _dbHelper.queryAll('expenses');
+  Future<void> _fetchGroupedExpenses() async {
+    final data = await _dbHelper.rawQuery(
+      '''
+      SELECT c.name AS category, SUM(e.amount) AS total_amount
+      FROM expenses e
+      INNER JOIN categories c ON e.category_id = c.id
+      GROUP BY e.category_id
+      ORDER BY c.name
+      ''',
+      []
+    );
     setState(() {
-      expenses = data;
+      groupedExpenses = data;
     });
   }
 
-  Future<void> _fetchTotalExpensesForRange() async {
+  Future<void> _fetchTotalExpenses() async {
+    final data = await _dbHelper.rawQuery(
+      '''
+      SELECT SUM(amount) AS total_amount
+      FROM expenses
+      ''',
+      []
+    );
+    setState(() {
+      totalExpenses = (data.first['total_amount'] ?? 0.0) as double;
+    });
+  }
+
+  Future<void> _fetchTotalExpensesThisMonth() async {
     final DateTime now = DateTime.now();
     final DateTime startOfMonth = DateTime(now.year, now.month, 1);
     final data = await _dbHelper.rawQuery(
       '''
-      SELECT SUM(amount) as total_amount
+      SELECT SUM(amount) AS total_amount
       FROM expenses
       WHERE date BETWEEN ? AND ?
       ''',
-      [DateFormat('yyyy-MM-dd').format(startOfMonth), DateFormat('yyyy-MM-dd').format(now)],
+      [
+        startOfMonth.toIso8601String(),
+        now.toIso8601String()
+      ]
     );
     setState(() {
-      totalExpensesForRange = (data.first['total_amount'] ?? 0.0) as double;
+      totalExpensesThisMonth = (data.first['total_amount'] ?? 0.0) as double;
     });
+  }
+
+  void _showExpensesForCategory(String category) async {
+    final expensesForCategory = await _dbHelper.rawQuery(
+      '''
+      SELECT e.name, e.amount, e.date
+      FROM expenses e
+      INNER JOIN categories c ON e.category_id = c.id
+      WHERE c.name = ?
+      ''',
+      [category]
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExpensesForCategoryScreen(
+          category: category,
+          expenses: expensesForCategory,
+        ),
+      ),
+    );
   }
 
   @override
@@ -51,16 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Expense Tracker'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.category),
-            onPressed: () {
-              Navigator.pushNamed(context, '/manage_categories');
-            },
-            tooltip: 'Manage Categories',
-          ),
-        ],
       ),
+
       body: Column(
         children: [
           Padding(
@@ -73,11 +110,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text('Total Expenses: \$${totalExpenses.toStringAsFixed(2)}'),
                     const SizedBox(height: 8),
-                    Text('Total Expenses This Month: \$${totalExpensesForRange.toStringAsFixed(2)}'),
+                    Text('Total Expenses This Month: \$${totalExpensesThisMonth.toStringAsFixed(2)}'),
                     const SizedBox(height: 8),
-                    ...expenses.map((expense) {
-                      return Text('${expense['category']}: \$${expense['amount']}');
-                    }).toList(),
                   ],
                 ),
               ),
@@ -85,13 +119,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: expenses.length,
+              itemCount: groupedExpenses.length,
               itemBuilder: (context, index) {
-                final expense = expenses[index];
+                final expenseGroup = groupedExpenses[index];
                 return ListTile(
-                  title: Text('${expense['name']}'),
-                  subtitle: Text(expense['date']),
-                  trailing: Text('\$${expense['amount']}'),
+                  title: Text('${expenseGroup['category']}'),
+                  trailing: Text('\$${expenseGroup['total_amount'].toStringAsFixed(2)}'),
+                  onTap: () {
+                    _showExpensesForCategory(expenseGroup['category']);
+                  },
                 );
               },
             ),
@@ -105,8 +141,9 @@ class _HomeScreenState extends State<HomeScreen> {
             heroTag: 'add_expense',
             onPressed: () async {
               await Navigator.pushNamed(context, '/add_edit_expense');
-              _fetchExpenses();
-              _fetchTotalExpensesForRange();
+              _fetchGroupedExpenses();
+              _fetchTotalExpenses();
+              _fetchTotalExpensesThisMonth();
             },
             child: const Icon(Icons.add),
             tooltip: 'Add Expense',
@@ -121,6 +158,35 @@ class _HomeScreenState extends State<HomeScreen> {
             tooltip: 'Manage Categories',
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ExpensesForCategoryScreen extends StatelessWidget {
+  final String category;
+  final List<Map<String, dynamic>> expenses;
+
+  const ExpensesForCategoryScreen({
+    required this.category,
+    required this.expenses,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Expenses for $category')),
+      body: ListView.builder(
+        itemCount: expenses.length,
+        itemBuilder: (context, index) {
+          final expense = expenses[index];
+          return ListTile(
+            title: Text('${expense['name']}'),
+            subtitle: Text('${expense['date']}'),
+            trailing: Text('\$${expense['amount']}'),
+          );
+        },
       ),
     );
   }
