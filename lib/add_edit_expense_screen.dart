@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
+import 'package:intl/intl.dart';
 
 class AddEditExpenseScreen extends StatefulWidget {
   const AddEditExpenseScreen({super.key});
@@ -129,7 +130,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                     onPressed: () async {
                       final selectedDate = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now(),
+                        initialDate: _selectedDate ?? DateTime.now(),
                         firstDate: DateTime(2000),
                         lastDate: DateTime(2100),
                       );
@@ -139,12 +140,15 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                         });
                       }
                     },
-                    child: Text(
-                      _selectedDate == null
-                          ? 'Select Date'
-                          : 'Selected: ${_selectedDate!.toLocal()}'.split(' ')[0],
-                    ),
+                    child: const Text('Select Date'),
                   ),
+                  if (_selectedDate != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        'Selected: ' + DateFormat('yyyy-MM-dd').format(_selectedDate!),
+                      ),
+                    ),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () async {
