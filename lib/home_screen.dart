@@ -108,9 +108,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Total Expenses: \$${totalExpenses.toStringAsFixed(2)}'),
+                    Text('Total Expenses: Rs${totalExpenses.toStringAsFixed(2)}'),
                     const SizedBox(height: 8),
-                    Text('Total Expenses This Month: \$${totalExpensesThisMonth.toStringAsFixed(2)}'),
+                    Text('Total Expenses This Month: Rs${totalExpensesThisMonth.toStringAsFixed(2)}'),
                     const SizedBox(height: 8),
                   ],
                 ),
@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 final expenseGroup = groupedExpenses[index];
                 return ListTile(
                   title: Text('${expenseGroup['category']}'),
-                  trailing: Text('\$${expenseGroup['total_amount'].toStringAsFixed(2)}'),
+                  trailing: Text('Rs${expenseGroup['total_amount'].toStringAsFixed(2)}'),
                   onTap: () {
                     _showExpensesForCategory(expenseGroup['category']);
                   },
@@ -184,7 +184,7 @@ class ExpensesForCategoryScreen extends StatelessWidget {
           return ListTile(
             title: Text('${expense['name']}'),
             subtitle: Text('${expense['date']}'),
-            trailing: Text('\$${expense['amount']}'),
+            trailing: Text('Rs${expense['amount']}'),
           );
         },
       ),
