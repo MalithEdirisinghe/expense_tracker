@@ -27,6 +27,13 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
     _fetchExpenses();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
+
   Future<void> _fetchCategories() async {
     final data = await _dbHelper.queryAll('categories');
     setState(() {

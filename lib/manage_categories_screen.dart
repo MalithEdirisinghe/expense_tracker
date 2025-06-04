@@ -20,6 +20,12 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
     _fetchCategories();
   }
 
+  @override
+  void dispose() {
+    _categoryController.dispose();
+    super.dispose();
+  }
+
   Future<void> _fetchCategories() async {
     final data = await _dbHelper.queryAll('categories');
     setState(() {
