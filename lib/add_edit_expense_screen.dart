@@ -45,7 +45,14 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
   }
 
   Future<void> _fetchExpenses() async {
-    final data = await _dbHelper.queryAll('expenses');
+    final data = await _dbHelper.rawQuery(
+      '''
+      SELECT e.id, e.name, e.category_id, e.amount, e.date, c.name AS category_name
+      FROM expenses e
+      INNER JOIN categories c ON e.category_id = c.id
+      ''',
+      [],
+    );
     setState(() {
       expenses = data;
     });
@@ -220,7 +227,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                   final expense = expenses[index];
                   return ListTile(
                     title: Text('${expense['name']}'),
-                    subtitle: Text('${expense['date']} - Category ID: ${expense['category_id']}'),
+                    subtitle: Text('${expense['date']} - ${expense['category_name']}'),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
