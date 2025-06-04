@@ -13,6 +13,7 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> groupedExpenses = [];
   double totalExpenses = 0.0;
   double totalExpensesThisMonth = 0.0;
+  double predictedNextMonth = 0.0;
 
   @override
   void initState() {
@@ -20,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _fetchGroupedExpenses();
     _fetchTotalExpenses();
     _fetchTotalExpensesThisMonth();
+    _fetchPredictedNextMonth();
   }
 
   Future<void> _fetchGroupedExpenses() async {
@@ -29,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
       FROM expenses e
       INNER JOIN categories c ON e.category_id = c.id
       GROUP BY e.category_id
-      ORDER BY c.name
+      ORDER BY total_amount DESC
       ''',
       []
     );
@@ -68,6 +70,32 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       totalExpensesThisMonth = (data.first['total_amount'] ?? 0.0) as double;
     });
+  }
+
+  Future<void> _fetchPredictedNextMonth() async {
+    final monthlyData = await _dbHelper.rawQuery(
+      '''
+      SELECT strftime('%Y-%m', date) AS month, SUM(amount) AS total_amount
+      FROM expenses
+      GROUP BY strftime('%Y-%m', date)
+      ORDER BY month
+      ''',
+      [],
+    );
+
+    if (monthlyData.isNotEmpty) {
+      double sum = 0.0;
+      for (final row in monthlyData) {
+        sum += (row['total_amount'] ?? 0.0) as double;
+      }
+      setState(() {
+        predictedNextMonth = sum / monthlyData.length;
+      });
+    } else {
+      setState(() {
+        predictedNextMonth = 0.0;
+      });
+    }
   }
 
   void _showExpensesForCategory(String category) async {
@@ -112,6 +140,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 8),
                     Text('Total Expenses This Month: Rs${totalExpensesThisMonth.toStringAsFixed(2)}'),
                     const SizedBox(height: 8),
+                    Text('Predicted Next Month: Rs${predictedNextMonth.toStringAsFixed(2)}'),
+                    const SizedBox(height: 8),
                   ],
                 ),
               ),
@@ -144,6 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _fetchGroupedExpenses();
               _fetchTotalExpenses();
               _fetchTotalExpensesThisMonth();
+              _fetchPredictedNextMonth();
             },
             child: const Icon(Icons.add),
             tooltip: 'Add Expense',
@@ -151,8 +182,10 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
           FloatingActionButton(
             heroTag: 'manage_categories',
-            onPressed: () {
-              Navigator.pushNamed(context, '/manage_categories');
+            onPressed: () async {
+              await Navigator.pushNamed(context, '/manage_categories');
+              _fetchGroupedExpenses();
+              _fetchPredictedNextMonth();
             },
             child: const Icon(Icons.category),
             tooltip: 'Manage Categories',
