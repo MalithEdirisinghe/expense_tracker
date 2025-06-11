@@ -194,6 +194,15 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Icon(Icons.category),
             tooltip: 'Manage Categories',
           ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: 'view_chart',
+            onPressed: () async {
+              await Navigator.pushNamed(context, '/expenses_chart');
+            },
+            child: const Icon(Icons.bar_chart),
+            tooltip: 'View Chart',
+          ),
         ],
       ),
     );
