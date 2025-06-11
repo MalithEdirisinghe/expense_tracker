@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -193,6 +194,15 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Icon(Icons.category),
             tooltip: 'Manage Categories',
           ),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: 'view_chart',
+            onPressed: () async {
+              await Navigator.pushNamed(context, '/expenses_chart');
+            },
+            child: const Icon(Icons.bar_chart),
+            tooltip: 'View Chart',
+          ),
         ],
       ),
     );
@@ -221,7 +231,8 @@ class ExpensesForCategoryScreen extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: ListTile(
               title: Text('${expense['name']}'),
-              subtitle: Text('${expense['date']}'),
+              subtitle: Text(
+                  DateFormat('yyyy-MM-dd').format(DateTime.parse(expense['date']))),
               trailing: Text('Rs${expense['amount']}'),
             ),
           );

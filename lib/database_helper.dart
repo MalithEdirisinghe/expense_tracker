@@ -89,4 +89,14 @@ class DatabaseHelper {
     
     return (result.first['total_amount'] as num?)?.toDouble() ?? 0.0;
   }
+
+  Future<List<Map<String, dynamic>>> queryExpensesByDate() async {
+    final db = await database;
+    return await db.rawQuery('''
+      SELECT date(date) AS date, SUM(amount) AS total_amount
+      FROM expenses
+      GROUP BY date(date)
+      ORDER BY date(date)
+    ''');
+  }
 }

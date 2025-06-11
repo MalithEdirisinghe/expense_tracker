@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'home_screen.dart';
 import 'add_edit_expense_screen.dart';
 import 'manage_categories_screen.dart';
+import 'expenses_chart_screen.dart';
 
 void main() => runApp(const ExpenseTrackerApp());
 
@@ -23,6 +24,7 @@ class ExpenseTrackerApp extends StatelessWidget {
         '/': (context) => const HomeScreen(),
         '/add_edit_expense': (context) => const AddEditExpenseScreen(),
         '/manage_categories': (context) => const ManageCategoriesScreen(),
+        '/expenses_chart': (context) => const ExpensesChartScreen(),
       },
     );
   }
