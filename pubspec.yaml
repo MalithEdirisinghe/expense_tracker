@@ -33,6 +33,7 @@ dependencies:
   sqflite: ^2.0.0+4
   path: ^1.8.0
   intl: ^0.18.0
+  google_fonts: ^6.2.1
 
 
 

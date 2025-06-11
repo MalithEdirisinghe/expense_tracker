@@ -152,12 +152,15 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: groupedExpenses.length,
               itemBuilder: (context, index) {
                 final expenseGroup = groupedExpenses[index];
-                return ListTile(
-                  title: Text('${expenseGroup['category']}'),
-                  trailing: Text('Rs${expenseGroup['total_amount'].toStringAsFixed(2)}'),
-                  onTap: () {
-                    _showExpensesForCategory(expenseGroup['category']);
-                  },
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: ListTile(
+                    title: Text('${expenseGroup['category']}'),
+                    trailing: Text('Rs${expenseGroup['total_amount'].toStringAsFixed(2)}'),
+                    onTap: () {
+                      _showExpensesForCategory(expenseGroup['category']);
+                    },
+                  ),
                 );
               },
             ),
@@ -214,10 +217,13 @@ class ExpensesForCategoryScreen extends StatelessWidget {
         itemCount: expenses.length,
         itemBuilder: (context, index) {
           final expense = expenses[index];
-          return ListTile(
-            title: Text('${expense['name']}'),
-            subtitle: Text('${expense['date']}'),
-            trailing: Text('Rs${expense['amount']}'),
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: ListTile(
+              title: Text('${expense['name']}'),
+              subtitle: Text('${expense['date']}'),
+              trailing: Text('Rs${expense['amount']}'),
+            ),
           );
         },
       ),
