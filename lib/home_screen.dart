@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -221,7 +222,8 @@ class ExpensesForCategoryScreen extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: ListTile(
               title: Text('${expense['name']}'),
-              subtitle: Text('${expense['date']}'),
+              subtitle: Text(
+                  DateFormat('yyyy-MM-dd').format(DateTime.parse(expense['date']))),
               trailing: Text('Rs${expense['amount']}'),
             ),
           );

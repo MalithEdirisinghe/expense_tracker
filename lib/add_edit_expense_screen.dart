@@ -371,7 +371,8 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     child: ListTile(
                       title: Text('${expense['name']} - Rs. ${expense['amount']}'),
-                      subtitle: Text('${expense['date']} - ${expense['category_name']}'),
+                      subtitle: Text(
+                          '${DateFormat('yyyy-MM-dd').format(DateTime.parse(expense['date']))} - ${expense['category_name']}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
