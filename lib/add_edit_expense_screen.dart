@@ -91,139 +91,140 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                 child: Form(
                   key: _formKey,
                   child: Column(
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Expense Name'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an expense name';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _amountController,
-                    decoration: const InputDecoration(labelText: 'Amount'),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an amount';
-                      }
-                      try {
-                        if (double.parse(value) <= 0) {
-                          return 'Amount must be greater than 0';
-                        }
-                      } catch (e) {
-                        return 'Please enter a valid number';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: _selectedCategory,
-                    items: categories.map<DropdownMenuItem<String>>((category) {
-                      return DropdownMenuItem<String>(
-                        value: category['name'] as String,
-                        child: Text(category['name']),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCategory = value;
-                      });
-                    },
-                    decoration: const InputDecoration(labelText: 'Category'),
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select a category';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () async {
-                      final selectedDate = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-                      if (selectedDate != null) {
-                        setState(() {
-                          _selectedDate = selectedDate;
-                        });
-                      }
-                    },
-                    child: const Text('Select Date'),
-                  ),
-                  if (_selectedDate != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'Selected: ' + DateFormat('yyyy-MM-dd').format(_selectedDate!),
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(labelText: 'Expense Name'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter an expense name';
+                          }
+                          return null;
+                        },
                       ),
-                    ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate() && _selectedDate != null) {
-                        final name = _nameController.text;
-                        final amount = double.parse(_amountController.text);
-                        final category = _selectedCategory!;
-                        final date = _selectedDate!.toIso8601String();
-                        final selectedCategory = categories.firstWhere(
-                          (cat) => cat['name'] == category,
-                        );
-                        if (_selectedExpenseId == null) {
-                          await _dbHelper.insert('expenses', {
-                            'name': name,
-                            'amount': amount,
-                            'category_id': selectedCategory['id'],
-                            'date': date,
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _amountController,
+                        decoration: const InputDecoration(labelText: 'Amount'),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter an amount';
+                          }
+                          try {
+                            if (double.parse(value) <= 0) {
+                              return 'Amount must be greater than 0';
+                            }
+                          } catch (e) {
+                            return 'Please enter a valid number';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: _selectedCategory,
+                        items: categories.map<DropdownMenuItem<String>>((category) {
+                          return DropdownMenuItem<String>(
+                            value: category['name'] as String,
+                            child: Text(category['name']),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCategory = value;
                           });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Expense added successfully!')),
+                        },
+                        decoration: const InputDecoration(labelText: 'Category'),
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Please select a category';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: () async {
+                          final selectedDate = await showDatePicker(
+                            context: context,
+                            initialDate: _selectedDate ?? DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2100),
                           );
-                        } else {
-                          await _dbHelper.update(
-                            'expenses',
-                            {
-                              'name': name,
-                              'amount': amount,
-                              'category_id': selectedCategory['id'],
-                              'date': date,
-                            },
-                            'id = ?',
-                            [_selectedExpenseId],
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Expense updated successfully!')),
-                          );
-                        }
-                        _fetchExpenses();
-                        _nameController.clear();
-                        _amountController.clear();
-                        setState(() {
-                          _selectedCategory = null;
-                          _selectedDate = null;
-                          _selectedExpenseId = null;
-                        });
-                      } else if (_selectedDate == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please select a date')),
-                        );
-                      }
-                    },
-                    child: const Text('Save'),
+                          if (selectedDate != null) {
+                            setState(() {
+                              _selectedDate = selectedDate;
+                            });
+                          }
+                        },
+                        child: const Text('Select Date'),
+                      ),
+                      if (_selectedDate != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'Selected: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}',
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate() && _selectedDate != null) {
+                            final name = _nameController.text;
+                            final amount = double.parse(_amountController.text);
+                            final category = _selectedCategory!;
+                            final date = _selectedDate!.toIso8601String();
+                            final selectedCategory = categories.firstWhere(
+                              (cat) => cat['name'] == category,
+                            );
+                            if (_selectedExpenseId == null) {
+                              await _dbHelper.insert('expenses', {
+                                'name': name,
+                                'amount': amount,
+                                'category_id': selectedCategory['id'],
+                                'date': date,
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Expense added successfully!')),
+                              );
+                            } else {
+                              await _dbHelper.update(
+                                'expenses',
+                                {
+                                  'name': name,
+                                  'amount': amount,
+                                  'category_id': selectedCategory['id'],
+                                  'date': date,
+                                },
+                                'id = ?',
+                                [_selectedExpenseId],
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Expense updated successfully!')),
+                              );
+                            }
+                            _fetchExpenses();
+                            _nameController.clear();
+                            _amountController.clear();
+                            setState(() {
+                              _selectedCategory = null;
+                              _selectedDate = null;
+                              _selectedExpenseId = null;
+                            });
+                          } else if (_selectedDate == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please select a date')),
+                            );
+                          }
+                        },
+                        child: const Text('Save'),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
@@ -233,7 +234,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                   return Card(
                     margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     child: ListTile(
-                      title: Text('${expense['name']}'),
+                      title: Text('${expense['name']} - Rs. ${expense['amount']}'),
                       subtitle: Text('${expense['date']} - ${expense['category_name']}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
