@@ -78,6 +78,47 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
     );
   }
 
+  Future<void> _applyFilter() async {
+    if (_filterOption == 'All') {
+      await _fetchExpenses();
+      return;
+    }
+
+    DateTime now = DateTime.now();
+    late DateTime start;
+    late DateTime end;
+
+    if (_filterOption == 'This Week') {
+      final int weekday = now.weekday;
+      start = now.subtract(Duration(days: weekday - 1));
+      end = start.add(const Duration(days: 6));
+    } else if (_filterOption == 'Last Week') {
+      final int weekday = now.weekday;
+      end = now.subtract(Duration(days: weekday));
+      start = end.subtract(const Duration(days: 6));
+    } else if (_filterOption == 'This Month') {
+      start = DateTime(now.year, now.month, 1);
+      end = DateTime(now.year, now.month + 1, 0);
+    } else if (_filterOption == 'Last Month') {
+      start = DateTime(now.year, now.month - 1, 1);
+      end = DateTime(now.year, now.month, 0);
+    } else if (_filterOption == 'Date Range') {
+      if (_filterStartDate == null || _filterEndDate == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select start and end dates')),
+        );
+        return;
+      }
+      start = _filterStartDate!;
+      end = _filterEndDate!;
+    } else {
+      await _fetchExpenses();
+      return;
+    }
+
+    await _fetchExpenses(startDate: start, endDate: end);
+  }
+
   void _populateForm(Map<String, dynamic> expense) {
     _selectedExpenseId = expense['id'];
     _nameController.text = expense['name'];
@@ -234,6 +275,89 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                       ),
                     ],
                   ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    DropdownButton<String>(
+                      value: _filterOption,
+                      items: const [
+                        DropdownMenuItem(value: 'All', child: Text('All')),
+                        DropdownMenuItem(value: 'This Week', child: Text('This Week')),
+                        DropdownMenuItem(value: 'Last Week', child: Text('Last Week')),
+                        DropdownMenuItem(value: 'This Month', child: Text('This Month')),
+                        DropdownMenuItem(value: 'Last Month', child: Text('Last Month')),
+                        DropdownMenuItem(value: 'Date Range', child: Text('Date Range')),
+                      ],
+                      onChanged: (value) {
+                        if (value == null) return;
+                        setState(() {
+                          _filterOption = value;
+                        });
+                        if (value != 'Date Range') {
+                          _filterStartDate = null;
+                          _filterEndDate = null;
+                          _applyFilter();
+                        }
+                      },
+                    ),
+                    if (_filterOption == 'Date Range')
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          TextButton(
+                            onPressed: () async {
+                              final date = await showDatePicker(
+                                context: context,
+                                initialDate: _filterStartDate ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (date != null) {
+                                setState(() {
+                                  _filterStartDate = date;
+                                });
+                              }
+                            },
+                            child: Text(
+                              _filterStartDate == null
+                                  ? 'Start Date'
+                                  : DateFormat('yyyy-MM-dd').format(_filterStartDate!),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              final date = await showDatePicker(
+                                context: context,
+                                initialDate: _filterEndDate ?? DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2100),
+                              );
+                              if (date != null) {
+                                setState(() {
+                                  _filterEndDate = date;
+                                });
+                              }
+                            },
+                            child: Text(
+                              _filterEndDate == null
+                                  ? 'End Date'
+                                  : DateFormat('yyyy-MM-dd').format(_filterEndDate!),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: _applyFilter,
+                            child: const Text('Apply'),
+                          ),
+                        ],
+                      ),
+                  ],
                 ),
               ),
             ),
