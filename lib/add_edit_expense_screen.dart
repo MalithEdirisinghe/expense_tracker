@@ -84,9 +84,13 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Form(
-              key: _formKey,
-              child: Column(
+            Card(
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
                 children: [
                   TextFormField(
                     controller: _nameController,
@@ -219,31 +223,35 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                 ],
               ),
             ),
+          ),
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
                 itemCount: expenses.length,
                 itemBuilder: (context, index) {
                   final expense = expenses[index];
-                  return ListTile(
-                    title: Text('${expense['name']}'),
-                    subtitle: Text('${expense['date']} - ${expense['category_name']}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () {
-                            _populateForm(expense);
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            _deleteExpense(expense['id']);
-                          },
-                        ),
-                      ],
+                  return Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: ListTile(
+                      title: Text('${expense['name']}'),
+                      subtitle: Text('${expense['date']} - ${expense['category_name']}'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              _populateForm(expense);
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              _deleteExpense(expense['id']);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
