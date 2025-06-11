@@ -53,8 +53,21 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
                   barGroups: barGroups,
                   gridData: FlGridData(show: false),
                   titlesData: FlTitlesData(
-                    leftTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: true),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40, // optional: give more width for large numbers
+                        getTitlesWidget: (double value, TitleMeta meta) {
+                          return SideTitleWidget(
+                            axisSide: meta.axisSide,
+                            space: 8,
+                            child: Text(
+                              NumberFormat.compact().format(value), // or just value.toStringAsFixed(0)
+                              style: const TextStyle(fontSize: 10),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                     rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
