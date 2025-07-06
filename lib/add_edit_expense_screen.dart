@@ -125,6 +125,15 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
     await _fetchExpenses(startDate: start, endDate: end);
   }
 
+  void _resetFilter() {
+    setState(() {
+      _filterOption = 'All';
+      _filterStartDate = null;
+      _filterEndDate = null;
+    });
+    _applyFilter();
+  }
+
   void _populateForm(Map<String, dynamic> expense) {
     _selectedExpenseId = expense['id'];
     _nameController.text = expense['name'];
@@ -360,6 +369,10 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                       ElevatedButton(
                             onPressed: _applyFilter,
                             child: const Text('Apply'),
+                          ),
+                          TextButton(
+                            onPressed: _resetFilter,
+                            child: const Text('Reset'),
                           ),
                         ],
                       ),
