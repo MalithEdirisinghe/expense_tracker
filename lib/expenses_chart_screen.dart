@@ -61,71 +61,71 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
       appBar: AppBar(title: const Text('Expenses Over Time')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _dailyExpenses.isEmpty
-            ? const Center(child: Text('No data'))
-            : Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      TextButton(
-                        onPressed: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: _startDate ?? DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                          );
-                          if (date != null) {
-                            setState(() {
-                              _startDate = date;
-                            });
-                          }
-                        },
-                        child: Text(
-                          _startDate == null
-                              ? 'Start Date'
-                              : DateFormat('yyyy-MM-dd').format(_startDate!),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: _endDate ?? DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2100),
-                          );
-                          if (date != null) {
-                            setState(() {
-                              _endDate = date;
-                            });
-                          }
-                        },
-                        child: Text(
-                          _endDate == null
-                              ? 'End Date'
-                              : DateFormat('yyyy-MM-dd').format(_endDate!),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _applyFilter,
-                        child: const Text('Apply'),
-                      ),
-                    ],
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _startDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _startDate = date;
+                      });
+                    }
+                  },
+                  child: Text(
+                    _startDate == null
+                        ? 'Start Date'
+                        : DateFormat('yyyy-MM-dd').format(_startDate!),
                   ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'Total: Rs${_total.toStringAsFixed(2)}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _endDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _endDate = date;
+                      });
+                    }
+                  },
+                  child: Text(
+                    _endDate == null
+                        ? 'End Date'
+                        : DateFormat('yyyy-MM-dd').format(_endDate!),
                   ),
-                  Expanded(
-                    child: BarChart(
+                ),
+                ElevatedButton(
+                  onPressed: _applyFilter,
+                  child: const Text('Apply'),
+                ),
+              ],
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Text(
+                  'Total: Rs${_total.toStringAsFixed(2)}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            Expanded(
+              child: _dailyExpenses.isEmpty
+                  ? const Center(child: Text('No data'))
+                  : BarChart(
                       BarChartData(
                         barGroups: barGroups,
                         gridData: FlGridData(show: false),
@@ -146,8 +146,10 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
                               },
                             ),
                           ),
-                          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                          topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
@@ -155,7 +157,8 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
                                 final label = labels[value.toInt()] ?? '';
                                 return SideTitleWidget(
                                   axisSide: meta.axisSide,
-                                  child: Text(label, style: const TextStyle(fontSize: 10)),
+                                  child:
+                                      Text(label, style: const TextStyle(fontSize: 10)),
                                 );
                               },
                             ),
@@ -163,9 +166,9 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+            ),
+          ],
+        ),
       ),
     );
   }

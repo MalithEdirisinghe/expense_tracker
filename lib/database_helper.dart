@@ -98,8 +98,11 @@ class DatabaseHelper {
     var whereClause = '';
     final args = <dynamic>[];
     if (startDate != null && endDate != null) {
-      whereClause = 'WHERE date(date) BETWEEN ? AND ?';
-      args.addAll([startDate.toIso8601String(), endDate.toIso8601String()]);
+      whereClause = 'WHERE date(date) BETWEEN date(?) AND date(?)';
+      args.addAll([
+        startDate.toIso8601String(),
+        endDate.toIso8601String(),
+      ]);
     }
     return await db.rawQuery('''
       SELECT date(date) AS date, SUM(amount) AS total_amount
