@@ -90,13 +90,26 @@ class DatabaseHelper {
     return (result.first['total_amount'] as num?)?.toDouble() ?? 0.0;
   }
 
-  Future<List<Map<String, dynamic>>> queryExpensesByDate() async {
+  Future<List<Map<String, dynamic>>> queryExpensesByDate({
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
     final db = await database;
+    var whereClause = '';
+    final args = <dynamic>[];
+    if (startDate != null && endDate != null) {
+      whereClause = 'WHERE date(date) BETWEEN date(?) AND date(?)';
+      args.addAll([
+        startDate.toIso8601String(),
+        endDate.toIso8601String(),
+      ]);
+    }
     return await db.rawQuery('''
       SELECT date(date) AS date, SUM(amount) AS total_amount
       FROM expenses
+      $whereClause
       GROUP BY date(date)
       ORDER BY date(date)
-    ''');
+    ''', args);
   }
 }
