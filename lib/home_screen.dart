@@ -99,23 +99,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _showExpensesForCategory(String category) async {
-    final expensesForCategory = await _dbHelper.rawQuery(
-      '''
-      SELECT e.name, e.amount, e.date
-      FROM expenses e
-      INNER JOIN categories c ON e.category_id = c.id
-      WHERE c.name = ?
-      ''',
-      [category]
-    );
+  void _showExpensesForCategory(String category) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ExpensesForCategoryScreen(
-          category: category,
-          expenses: expensesForCategory,
-        ),
+        builder: (context) => ExpensesForCategoryScreen(category: category),
       ),
     );
   }
@@ -209,34 +197,172 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class ExpensesForCategoryScreen extends StatelessWidget {
+class ExpensesForCategoryScreen extends StatefulWidget {
   final String category;
-  final List<Map<String, dynamic>> expenses;
 
   const ExpensesForCategoryScreen({
     required this.category,
-    required this.expenses,
     super.key,
   });
 
   @override
+  State<ExpensesForCategoryScreen> createState() =>
+      _ExpensesForCategoryScreenState();
+}
+
+class _ExpensesForCategoryScreenState extends State<ExpensesForCategoryScreen> {
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+  List<Map<String, dynamic>> _expenses = [];
+  DateTime? _startDate;
+  DateTime? _endDate;
+  double _total = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchExpenses();
+  }
+
+  Future<void> _fetchExpenses() async {
+    String whereClause = 'WHERE c.name = ?';
+    List<dynamic> args = [widget.category];
+    if (_startDate != null && _endDate != null) {
+      whereClause += ' AND e.date BETWEEN ? AND ?';
+      args.addAll([
+        _startDate!.toIso8601String(),
+        _endDate!.toIso8601String(),
+      ]);
+    }
+
+    final data = await _dbHelper.rawQuery(
+      '''
+      SELECT e.name, e.amount, e.date
+      FROM expenses e
+      INNER JOIN categories c ON e.category_id = c.id
+      $whereClause
+      ORDER BY e.date DESC
+      ''',
+      args,
+    );
+
+    double sum = 0.0;
+    for (final row in data) {
+      sum += (row['amount'] as num?)?.toDouble() ?? 0.0;
+    }
+
+    setState(() {
+      _expenses = data;
+      _total = sum;
+    });
+  }
+
+  void _applyFilter() {
+    _fetchExpenses();
+  }
+
+  void _resetFilter() {
+    setState(() {
+      _startDate = null;
+      _endDate = null;
+    });
+    _fetchExpenses();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Expenses for $category')),
-      body: ListView.builder(
-        itemCount: expenses.length,
-        itemBuilder: (context, index) {
-          final expense = expenses[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: ListTile(
-              title: Text('${expense['name']}'),
-              subtitle: Text(
-                  DateFormat('yyyy-MM-dd').format(DateTime.parse(expense['date']))),
-              trailing: Text('Rs${expense['amount']}'),
+      appBar: AppBar(title: Text('Expenses for ${widget.category}')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: _startDate ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (date != null) {
+                          setState(() {
+                            _startDate = date;
+                          });
+                        }
+                      },
+                      child: Text(
+                        _startDate == null
+                            ? 'Start Date'
+                            : DateFormat('yyyy-MM-dd').format(_startDate!),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: _endDate ?? DateTime.now(),
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2100),
+                        );
+                        if (date != null) {
+                          setState(() {
+                            _endDate = date;
+                          });
+                        }
+                      },
+                      child: Text(
+                        _endDate == null
+                            ? 'End Date'
+                            : DateFormat('yyyy-MM-dd').format(_endDate!),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: _applyFilter,
+                      child: const Text('Apply'),
+                    ),
+                    TextButton(
+                      onPressed: _resetFilter,
+                      child: const Text('Reset'),
+                    ),
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      'Total: Rs${_total.toStringAsFixed(2)}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _expenses.length,
+              itemBuilder: (context, index) {
+                final expense = _expenses[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: ListTile(
+                    title: Text('${expense['name']}'),
+                    subtitle: Text(DateFormat('yyyy-MM-dd')
+                        .format(DateTime.parse(expense['date']))),
+                    trailing: Text(
+                        'Rs${(expense['amount'] as num?)?.toStringAsFixed(2) ?? '0.00'}'),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
