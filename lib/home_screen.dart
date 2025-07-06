@@ -362,6 +362,26 @@ class _ExpensesForCategoryScreenState extends State<ExpensesForCategoryScreen> {
               },
             ),
           ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _expenses.length,
+              itemBuilder: (context, index) {
+                final expense = _expenses[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: ListTile(
+                    title: Text('${expense['name']}'),
+                    subtitle: Text(DateFormat('yyyy-MM-dd')
+                        .format(DateTime.parse(expense['date']))),
+                    trailing: Text(
+                        'Rs${(expense['amount'] as num?)?.toStringAsFixed(2) ?? '0.00'}'),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );

@@ -50,6 +50,10 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
     _fetchDailyExpenses();
   }
 
+  void _applyFilter() {
+    _fetchDailyExpenses(start: _startDate, end: _endDate);
+  }
+
   @override
   Widget build(BuildContext context) {
     final barGroups = <BarChartGroupData>[];
@@ -92,6 +96,28 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
                     _startDate == null
                         ? 'Start Date'
                         : DateFormat('yyyy-MM-dd').format(_startDate!),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _endDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (date != null) {
+                      setState(() {
+                        _endDate = date;
+                      });
+                    }
+                  },
+                  child: Text(
+                    _endDate == null
+                        ? 'End Date'
+                        : DateFormat('yyyy-MM-dd').format(_endDate!),
+                  ),
+                ),
                   ),
                 ),
                 TextButton(

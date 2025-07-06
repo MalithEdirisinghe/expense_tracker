@@ -366,7 +366,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                                   : DateFormat('yyyy-MM-dd').format(_filterEndDate!),
                             ),
                           ),
-                          ElevatedButton(
+                      ElevatedButton(
                             onPressed: _applyFilter,
                             child: const Text('Apply'),
                           ),
