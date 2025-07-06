@@ -18,6 +18,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
   final DatabaseHelper _dbHelper = DatabaseHelper();
   List<Map<String, dynamic>> categories = [];
   List<Map<String, dynamic>> expenses = [];
+  double _totalAmount = 0.0;
   String _filterOption = 'All';
   DateTime? _filterStartDate;
   DateTime? _filterEndDate;
@@ -65,8 +66,13 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
       ''',
       args,
     );
+    double sum = 0.0;
+    for (final row in data) {
+      sum += (row['amount'] as num?)?.toDouble() ?? 0.0;
+    }
     setState(() {
       expenses = data;
+      _totalAmount = sum;
     });
   }
 
@@ -357,6 +363,16 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                           ),
                         ],
                       ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Total: Rs${_totalAmount.toStringAsFixed(2)}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
