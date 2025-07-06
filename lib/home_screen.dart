@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
       GROUP BY e.category_id
       ORDER BY total_amount DESC
       ''',
-      []
+      [],
     );
     setState(() {
       groupedExpenses = data;
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
       SELECT SUM(amount) AS total_amount
       FROM expenses
       ''',
-      []
+      [],
     );
     setState(() {
       totalExpenses = (data.first['total_amount'] ?? 0.0) as double;
@@ -66,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
       [
         startOfMonth.toIso8601String(),
         now.toIso8601String()
-      ]
+      ],
     );
     setState(() {
       totalExpensesThisMonth = (data.first['total_amount'] ?? 0.0) as double;
@@ -114,7 +114,6 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Expense Tracker'),
       ),
-
       body: Column(
         children: [
           Padding(
@@ -130,7 +129,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     Text('Total Expenses This Month: Rs${totalExpensesThisMonth.toStringAsFixed(2)}'),
                     const SizedBox(height: 8),
                     Text('Predicted Next Month: Rs${predictedNextMonth.toStringAsFixed(2)}'),
-                    const SizedBox(height: 8),
                   ],
                 ),
               ),
@@ -353,28 +351,8 @@ class _ExpensesForCategoryScreenState extends State<ExpensesForCategoryScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   child: ListTile(
                     title: Text('${expense['name']}'),
-                    subtitle: Text(DateFormat('yyyy-MM-dd')
-                        .format(DateTime.parse(expense['date']))),
-                    trailing: Text(
-                        'Rs${(expense['amount'] as num?)?.toStringAsFixed(2) ?? '0.00'}'),
-                  ),
-                );
-              },
-            ),
-          ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _expenses.length,
-              itemBuilder: (context, index) {
-                final expense = _expenses[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: ListTile(
-                    title: Text('${expense['name']}'),
-                    subtitle: Text(DateFormat('yyyy-MM-dd')
-                        .format(DateTime.parse(expense['date']))),
+                    subtitle: Text(
+                        DateFormat('yyyy-MM-dd').format(DateTime.parse(expense['date']))),
                     trailing: Text(
                         'Rs${(expense['amount'] as num?)?.toStringAsFixed(2) ?? '0.00'}'),
                   ),

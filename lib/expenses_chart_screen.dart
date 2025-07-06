@@ -50,14 +50,11 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
     _fetchDailyExpenses();
   }
 
-  void _applyFilter() {
-    _fetchDailyExpenses(start: _startDate, end: _endDate);
-  }
-
   @override
   Widget build(BuildContext context) {
     final barGroups = <BarChartGroupData>[];
     final labels = <int, String>{};
+
     for (var i = 0; i < _dailyExpenses.length; i++) {
       final row = _dailyExpenses[i];
       final amount = (row['total_amount'] as num?)?.toDouble() ?? 0.0;
@@ -118,28 +115,6 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
                         : DateFormat('yyyy-MM-dd').format(_endDate!),
                   ),
                 ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: _endDate ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                    );
-                    if (date != null) {
-                      setState(() {
-                        _endDate = date;
-                      });
-                    }
-                  },
-                  child: Text(
-                    _endDate == null
-                        ? 'End Date'
-                        : DateFormat('yyyy-MM-dd').format(_endDate!),
-                  ),
-                ),
                 ElevatedButton(
                   onPressed: _applyFilter,
                   child: const Text('Apply'),
@@ -172,7 +147,7 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
                             sideTitles: SideTitles(
                               showTitles: true,
                               reservedSize: 40,
-                              getTitlesWidget: (double value, TitleMeta meta) {
+                              getTitlesWidget: (value, meta) {
                                 return SideTitleWidget(
                                   axisSide: meta.axisSide,
                                   space: 8,
@@ -185,18 +160,19 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
                             ),
                           ),
                           rightTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                           topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
-                              getTitlesWidget: (double value, TitleMeta meta) {
+                              getTitlesWidget: (value, meta) {
                                 final label = labels[value.toInt()] ?? '';
                                 return SideTitleWidget(
                                   axisSide: meta.axisSide,
-                                  child:
-                                      Text(label, style: const TextStyle(fontSize: 10)),
+                                  child: Text(label, style: const TextStyle(fontSize: 10)),
                                 );
                               },
                             ),
