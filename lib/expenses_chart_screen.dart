@@ -136,51 +136,56 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
               ),
             ),
             Expanded(
-              child: _dailyExpenses.isEmpty
-                  ? const Center(child: Text('No data'))
-                  : BarChart(
-                      BarChartData(
-                        barGroups: barGroups,
-                        gridData: FlGridData(show: false),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 40,
-                              getTitlesWidget: (value, meta) {
-                                return SideTitleWidget(
-                                  axisSide: meta.axisSide,
-                                  space: 8,
-                                  child: Text(
-                                    NumberFormat.compact().format(value),
-                                    style: const TextStyle(fontSize: 10),
-                                  ),
-                                );
-                              },
-                            ),
+            child: _dailyExpenses.isEmpty
+                ? const Center(child: Text('No data'))
+                : BarChart(
+                    BarChartData(
+                      barGroups: barGroups,
+                      gridData: FlGridData(show: false),
+                      titlesData: FlTitlesData(
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 40,
+                            getTitlesWidget: (value, meta) {
+                              return SideTitleWidget(
+                                axisSide: meta.axisSide,
+                                space: 8,
+                                child: Text(
+                                  NumberFormat.compact().format(value),
+                                  style: const TextStyle(fontSize: 10),
+                                ),
+                              );
+                            },
                           ),
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, meta) {
-                                final label = labels[value.toInt()] ?? '';
-                                return SideTitleWidget(
-                                  axisSide: meta.axisSide,
+                        ),
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) {
+                              final index = value.toInt();
+                              final label = labels[index] ?? '';
+                              if (index % 2 != 0) return const SizedBox.shrink();
+                              return SideTitleWidget(
+                                axisSide: meta.axisSide,
+                                child: Transform.rotate(
+                                  angle: -0.5,
                                   child: Text(label, style: const TextStyle(fontSize: 10)),
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
                     ),
-            ),
+                  ),
+          ),
           ],
         ),
       ),
