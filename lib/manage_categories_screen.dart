@@ -45,12 +45,18 @@ class _ManageCategoriesScreenState extends State<ManageCategoriesScreen> {
         );
       }
     } else {
-      await _dbHelper.update(
-        'categories',
-        {'name': name},
-        'id = ?',
-        [_selectedCategoryId],
-      );
+      try {
+        await _dbHelper.update(
+          'categories',
+          {'name': name},
+          'id = ?',
+          [_selectedCategoryId],
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Category "$name" already exists!')),
+        );
+      }
     }
     _fetchCategories();
     _categoryController.clear();
