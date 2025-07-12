@@ -142,6 +142,34 @@ class _ExpensesChartScreenState extends State<ExpensesChartScreen> {
                     BarChartData(
                       barGroups: barGroups,
                       gridData: FlGridData(show: false),
+                      barTouchData: BarTouchData(
+                        enabled: true,
+                        touchTooltipData: BarTouchTooltipData(
+                          tooltipBgColor: Colors.black54,
+                          getTooltipItem: (
+                            BarChartGroupData group,
+                            int groupIndex,
+                            BarChartRodData rod,
+                            int rodIndex,
+                          ) {
+                            final label = labels[group.x.toInt()] ?? '';
+                            return BarTooltipItem(
+                              '$label\n',
+                              const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text:
+                                      'Rs${rod.toY.toStringAsFixed(2)}',
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
                       titlesData: FlTitlesData(
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
